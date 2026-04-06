@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Caption Maker – Go Viral on Social Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,600;10..48,700;10..48,800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ─── RESET ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+/* ─── TOKENS ─── */
+:root{
+  --bg:       #070512;
+  --surface:  #0f0a20;
+  --surface2: #160f2a;
+  --border:   rgba(150,100,255,.15);
+  --border2:  rgba(150,100,255,.28);
+  --v:        #6d28d9;
+  --v2:       #9b6dff;
+  --lime:     #b6f542;
+  --text:     #ede8ff;
+  --muted:    #8a7ab0;
+  --r:        12px;
+  --r2:       18px;
+  --max:      1120px;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* ─── NOISE + BG MESH ─── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 800px 600px at 10% 20%, rgba(109,40,217,.22) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 500px at 90% 80%, rgba(109,40,217,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 50% 50%, rgba(182,245,66,.04) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+/* ─── LAYOUT WRAPPER ─── */
+.wrap{
+  position:relative;z-index:1;
+  max-width:var(--max);
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* ─── NAV ─── */
+nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px 0;
+  border-bottom:1px solid var(--border);
+  margin-bottom:0;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;font-size:17px;letter-spacing:-.3px;
+  color:var(--text);
+  text-decoration:none;
+}
+.logo-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--v);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--v);
+  color:#fff;
+  border-radius:8px;
+  padding:9px 18px;
+  font-size:13.5px;font-weight:500;
+  text-decoration:none;
+  transition:background .18s,transform .15s;
+  white-space:nowrap;
+}
+.nav-cta:hover{background:#7c34ed;}
+.nav-cta:active{transform:scale(.97);}
+
+/* ─── HERO (full-width two-col on desktop) ─── */
+.hero{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+  align-items:center;
+  padding:64px 0 56px;
+}
+@media(max-width:768px){
+  .hero{
+    grid-template-columns:1fr;
+    text-align:center;
+    padding:40px 0 36px;
+    gap:36px;
+  }
+}
+
+.hero-text{}
+
+.badge{
+  display:inline-flex;
+  align-items:center;gap:7px;
+  background:rgba(182,245,66,.07);
+  border:1px solid rgba(182,245,66,.2);
+  border-radius:100px;
+  padding:5px 14px;
+  font-size:11.5px;
+  color:var(--lime);
+  font-weight:500;
+  letter-spacing:.3px;
+  margin-bottom:20px;
+}
+.badge .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--lime);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+h1{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(36px,5vw,58px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-2px;
+  margin-bottom:18px;
+}
+.hl{
+  background:linear-gradient(130deg,var(--v2) 0%,var(--lime) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero p{
+  font-size:16px;
+  color:var(--muted);
+  line-height:1.75;
+  max-width:440px;
+  margin-bottom:30px;
+}
+@media(max-width:768px){.hero p{max-width:100%;}}
+
+.hero-btns{
+  display:flex;flex-direction:column;gap:10px;
+  max-width:320px;
+}
+@media(max-width:768px){.hero-btns{margin:0 auto;}}
+
+.gp-btn{
+  display:block;
+  border-radius:10px;
+  overflow:hidden;
+  border:1.5px solid rgba(150,100,255,.3);
+  box-shadow:0 8px 32px rgba(109,40,217,.3);
+  transition:transform .16s,box-shadow .18s,border-color .18s;
+}
+.gp-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 48px rgba(109,40,217,.45);
+  border-color:var(--v2);
+}
+.gp-btn:active{transform:scale(.98);}
+.gp-btn img{width:100%;height:auto;display:block;}
+
+.trust-micro{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  font-size:12px;
+  color:var(--muted);
+  padding-top:4px;
+}
+@media(max-width:768px){.trust-micro{justify-content:center;}}
+.trust-micro span{display:flex;align-items:center;gap:5px;}
+.trust-micro span::before{content:'✓';color:var(--lime);font-weight:600;}
+
+/* ─── PHONE VISUAL ─── */
+.hero-visual{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.phone-frame{
+  position:relative;
+  display:inline-block;
+  filter:drop-shadow(0 32px 80px rgba(0,0,0,.7)) drop-shadow(0 0 60px rgba(109,40,217,.35));
+}
+.phone-img{
+  width:min(280px,75vw);
+  height:auto;
+  border-radius:28px;
+  display:block;
+  border:1.5px solid rgba(150,100,255,.25);
+}
+.chip{
+  position:absolute;
+  background:rgba(15,10,32,.92);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:8px 12px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  white-space:nowrap;
+  animation:float 4s ease-in-out infinite;
+}
+.chip:nth-child(3){animation-delay:-2.1s;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+.chip-rating{top:20px;left:-30px;font-size:11px;}
+.chip-rating .stars{color:#fbbf24;font-size:12px;margin-bottom:1px;}
+.chip-rating .val{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;color:#fff;}
+
+.chip-eng{bottom:30px;right:-28px;font-size:11px;color:var(--muted);}
+.chip-eng strong{display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;color:var(--lime);line-height:1.1;}
+
+@media(max-width:768px){
+  .chip-rating{left:-12px;}
+  .chip-eng{right:-12px;}
+}
+
+/* ─── STATS BAND ─── */
+.stats-band{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  padding:28px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  margin-bottom:72px;
+}
+.stat{text-align:center;padding:8px;}
+.stat strong{
+  display:block;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(28px,4vw,38px);
+  font-weight:800;
+  color:var(--lime);
+  letter-spacing:-1.5px;
+  line-height:1.05;
+  margin-bottom:5px;
+}
+.stat span{font-size:12.5px;color:var(--muted);}
+
+/* ─── SECTION TITLES ─── */
+.section{margin-bottom:72px;}
+.section-head{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  margin-bottom:40px;
+}
+.eyebrow{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:2.5px;
+  color:var(--v2);
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+h2{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(26px,3.5vw,38px);
+  font-weight:800;
+  letter-spacing:-1px;
+  line-height:1.1;
+  margin-bottom:12px;
+}
+.section-sub{
+  font-size:15px;
+  color:var(--muted);
+  max-width:480px;
+  line-height:1.7;
+}
+
+/* ─── FEATURES GRID ─── */
+.feats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+@media(max-width:520px){.feats{grid-template-columns:1fr;}}
+
+.feat{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:24px 22px;
+  transition:border-color .2s,transform .2s;
+}
+.feat:hover{border-color:var(--border2);transform:translateY(-2px);}
+.feat .ico{
+  font-size:22px;
+  width:46px;height:46px;
+  background:rgba(109,40,217,.18);
+  border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;
+  border:1px solid rgba(109,40,217,.25);
+}
+.feat h3{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;font-size:15px;
+  margin-bottom:6px;
+}
+.feat p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ─── HOW IT WORKS ─── */
+.steps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  position:relative;
+}
+@media(max-width:640px){
+  .steps{grid-template-columns:1fr;gap:0;}
+}
+
+/* Connector line between steps */
+.steps::before{
+  content:'';
+  position:absolute;
+  top:28px;left:calc(33.33% - 1px);
+  width:calc(33.33%);
+  height:1px;
+  background:linear-gradient(90deg,var(--v) 0%,transparent 100%);
+}
+.steps::after{
+  content:'';
+  position:absolute;
+  top:28px;left:calc(66.66% - 1px);
+  width:calc(33.33%);
+  height:1px;
+  background:linear-gradient(90deg,var(--v) 0%,transparent 100%);
+}
+@media(max-width:640px){
+  .steps::before,.steps::after{display:none;}
+}
+
+.step{
+  padding:0 20px 0 0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+@media(max-width:640px){
+  .step{
+    flex-direction:row;
+    align-items:flex-start;
+    gap:16px;
+    padding:16px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .step:last-child{border-bottom:none;}
+}
+
+.step-num{
+  width:48px;height:48px;
+  background:var(--v);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:18px;
+  margin-bottom:16px;
+  flex-shrink:0;
+  box-shadow:0 0 0 6px rgba(109,40,217,.15);
+}
+@media(max-width:640px){margin-bottom:0;}
+
+.step h3{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;font-size:15px;
+  margin-bottom:6px;
+}
+.step p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ─── REVIEWS ─── */
+.reviews{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+@media(max-width:768px){
+  .reviews{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){
+  .reviews{grid-template-columns:1fr;}
+}
+
+.review{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:20px 20px;
+  transition:border-color .2s;
+}
+.review:hover{border-color:var(--border2);}
+.review .stars{color:#fbbf24;font-size:13px;margin-bottom:10px;letter-spacing:1px;}
+.review q{
+  display:block;
+  font-size:13px;
+  color:rgba(237,232,255,.82);
+  line-height:1.65;
+  margin-bottom:14px;
+  quotes:none;
+  font-style:italic;
+}
+.review .who{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);}
+.av{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;flex-shrink:0;
+  font-family:'Bricolage Grotesque',sans-serif;
+}
+.av-a{background:rgba(109,40,217,.25);color:#b06eff;}
+.av-b{background:rgba(182,245,66,.12);color:#b6f542;}
+.av-c{background:rgba(236,72,153,.18);color:#f472b6;}
+
+/* ─── PLATFORMS ROW ─── */
+.platforms{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+.plat{
+  display:flex;align-items:center;gap:7px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:100px;
+  padding:7px 16px;
+  font-size:12.5px;
+  color:var(--muted);
+  font-weight:500;
+}
+.plat-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--lime);
+}
+
+/* ─── FINAL CTA BLOCK ─── */
+.cta-block{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:56px 40px;
+  text-align:center;
+  margin-bottom:56px;
+  position:relative;
+  overflow:hidden;
+}
+.cta-block::before{
+  content:'';
+  position:absolute;
+  top:-80px;left:50%;transform:translateX(-50%);
+  width:400px;height:300px;
+  background:radial-gradient(ellipse, rgba(109,40,217,.28) 0%, transparent 70%);
+  pointer-events:none;
+}
+.cta-block h2{margin-bottom:12px;}
+.cta-block p{margin-bottom:28px;}
+.cta-block .gp-btn{
+  max-width:280px;
+  margin:0 auto 14px;
+}
+.cta-block .trust-micro{justify-content:center;}
+
+/* ─── FOOTER ─── */
+footer{
+  border-top:1px solid var(--border);
+  padding:28px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:12px;
+  color:var(--muted);
+}
+footer a{color:var(--muted);text-decoration:underline;}
+footer a:hover{color:var(--text);}
+
+/* ─── STICKY CTA (mobile only) ─── */
+.sticky{
+  display:none;
+  position:fixed;
+  bottom:0;left:0;right:0;
+  z-index:100;
+  padding:10px 16px 18px;
+  background:linear-gradient(to top,rgba(7,5,18,1) 55%,transparent);
+  transition:opacity .25s;
+}
+.sticky.vis{display:block;}
+.sticky.hidden{opacity:0;pointer-events:none;}
+.sticky .gp-btn{max-width:420px;margin:0 auto;}
+@media(min-width:769px){.sticky{display:none!important;}}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.hero-text{animation:fadeUp .65s ease both .05s;}
+.hero-visual{animation:fadeUp .65s ease both .2s;}
+.stats-band{animation:fadeUp .6s ease both .3s;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#">
+      <div class="logo-icon">✨</div>
+      AI Caption Maker
+    </a>
+    <a class="nav-cta" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+      Download Free →
+    </a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<div class="wrap">
+  <section class="hero">
+
+    <div class="hero-text">
+      <div class="badge"><span class="dot"></span> 10,000+ creators growing daily</div>
+      <h1>Captions That<br>Actually <span class="hl">Go Viral</span></h1>
+      <p>Stop guessing what to write. AI Caption Maker generates scroll-stopping captions and trending hashtags in under 3 seconds — completely free.</p>
+      <div class="hero-btns">
+        <a class="gp-btn" id="hero-cta" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+          <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
+        </a>
+        <div class="trust-micro">
+          <span>Free</span>
+          <span>No signup</span>
+          <span>Works instantly</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="phone-frame">
+        <img
+          class="phone-img"
+          src="https://i.ibb.co/Pv5JvN1M/Chat-GPT-Image-Apr-6-2026-07-18-03-PM.png"
+          alt="AI Caption Maker screenshot"
+          loading="eager"
+          width="280"
+        >
+        <div class="chip chip-rating">
+          <div class="stars">★★★★★</div>
+          <div class="val">4.8 / 5</div>
+          <div style="font-size:10.5px;color:var(--muted)">Store rating</div>
+        </div>
+        <div class="chip chip-eng">
+          <strong>+250%</strong>
+          avg. engagement
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- STATS BAND -->
+<div class="wrap">
+  <div class="stats-band">
+    <div class="stat">
+      <strong>+250%</strong>
+      <span>Average engagement boost</span>
+    </div>
+    <div class="stat">
+      <strong>10K+</strong>
+      <span>Happy creators</span>
+    </div>
+    <div class="stat">
+      <strong>4.8★</strong>
+      <span>Google Play rating</span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-head">
+      <div class="eyebrow">What you get</div>
+      <h2>Everything to grow<br>your audience</h2>
+      <p class="section-sub">One app, all the tools you need to dominate every platform.</p>
+    </div>
+    <div class="feats">
+      <div class="feat">
+        <div class="ico">⚡</div>
+        <h3>AI Captions in Seconds</h3>
+        <p>Type your topic and get a perfectly-crafted, scroll-stopping caption in under 3 seconds.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🔥</div>
+        <h3>Trending Hashtags</h3>
+        <p>Auto-generated hashtag sets tailored to your niche, platform and current trends.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">📈</div>
+        <h3>More Likes & Followers</h3>
+        <p>Content optimized to maximize reach and engagement on every major platform.</p>
+      </div>
+      <div class="feat">
+        <div class="ico">🌍</div>
+        <h3>20+ Languages</h3>
+        <p>Create captions in any language to reach and connect with a truly global audience.</p>
+      </div>
+    </div>
+
+    <div class="platforms">
+      <div class="plat"><span class="plat-dot"></span> Instagram</div>
+      <div class="plat"><span class="plat-dot"></span> TikTok</div>
+      <div class="plat"><span class="plat-dot"></span> Facebook</div>
+      <div class="plat"><span class="plat-dot"></span> Twitter / X</div>
+      <div class="plat"><span class="plat-dot"></span> YouTube</div>
+    </div>
+  </section>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Three steps to<br>viral content</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Describe your post</h3>
+          <p>Type a few words about what you're sharing — a photo, product, or moment.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>AI generates for you</h3>
+          <p>Get a high-impact caption with matching hashtags optimized for your platform.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Post &amp; watch it grow</h3>
+          <p>Copy, paste, and watch your reach, likes, and followers explode.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- REVIEWS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-head">
+      <div class="eyebrow">Social proof</div>
+      <h2>Real users,<br>real results</h2>
+      <p class="section-sub">Join thousands of creators already going viral every day.</p>
+    </div>
+    <div class="reviews">
+      <div class="review">
+        <div class="stars">★★★★★</div>
+        <q>I went from 200 to 2,000 followers in a single month. The captions always nail my vibe perfectly.</q>
+        <div class="who">
+          <div class="av av-a">S</div>
+          <span>Sarah M. · Instagram Creator</span>
+        </div>
+      </div>
+      <div class="review">
+        <div class="stars">★★★★★</div>
+        <q>Saves me 2 hours every single day. The hashtags actually work — my posts reach new people constantly.</q>
+        <div class="who">
+          <div class="av av-b">J</div>
+          <span>James T. · Small Business Owner</span>
+        </div>
+      </div>
+      <div class="review">
+        <div class="stars">★★★★☆</div>
+        <q>Super easy to use and the AI always understands my vibe. Highly recommend to any content creator.</q>
+        <div class="who">
+          <div class="av av-c">A</div>
+          <span>Amina K. · TikTok Creator</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FINAL CTA BLOCK -->
+<div class="wrap">
+  <div class="cta-block">
+    <div class="eyebrow">Get started today</div>
+    <h2>Start Going Viral<br>Right Now 🚀</h2>
+    <p class="section-sub" style="margin:0 auto 28px;">Join 10,000+ creators already using AI Caption Maker to grow their audience every day.</p>
+    <a class="gp-btn" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+      <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
+    </a>
+    <p style="font-size:12px;color:var(--muted);margin-top:14px;">100% Free · No credit card · Android</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer>
+    <span>© 2026 AI Caption Maker. All rights reserved.</span>
+    <div style="display:flex;gap:18px;">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">Download App</a>
+    </div>
+  </footer>
+</div>
+
+<!-- STICKY BOTTOM CTA (mobile only) -->
+<div class="sticky" id="sticky">
+  <a class="gp-btn" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+    <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
+  </a>
+</div>
+
+<script>
+// Show sticky only on mobile after scrolling past hero CTA
+const heroCta = document.getElementById('hero-cta');
+const sticky  = document.getElementById('sticky');
+let stickyVis = false;
+
+const obs = new IntersectionObserver(([e]) => {
+  const shouldShow = !e.isIntersecting;
+  if(shouldShow && !stickyVis){
+    sticky.classList.add('vis');
+    setTimeout(()=>sticky.classList.remove('hidden'), 10);
+    stickyVis = true;
+  } else if(!shouldShow && stickyVis){
+    sticky.classList.add('hidden');
+    setTimeout(()=>{sticky.classList.remove('vis');sticky.classList.remove('hidden');}, 280);
+    stickyVis = false;
+  }
+}, {threshold:0.4});
+obs.observe(heroCta);
+
+// Scroll-triggered fade-up for cards
+const cards = document.querySelectorAll('.feat,.review,.step');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((en, i) => {
+    if(en.isIntersecting){
+      en.target.style.animation = `fadeUp .5s ease ${i * 0.07}s both`;
+      io.unobserve(en.target);
+    }
+  });
+}, {threshold: 0.08});
+cards.forEach(c => { c.style.opacity = '0'; io.observe(c); });
+</script>
+
+</body>
+</html>
