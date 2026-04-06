@@ -7,7 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,600;10..48,700;10..48,800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z89D3GKSKF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-Z89D3GKSKF');
+</script>
 <style>
 /* ─── RESET ─── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -546,7 +554,7 @@ footer a:hover{color:var(--text);}
       <h1>Captions That<br>Actually <span class="hl">Go Viral</span></h1>
       <p>Stop guessing what to write. AI Caption Maker generates scroll-stopping captions and trending hashtags in under 3 seconds — completely free.</p>
       <div class="hero-btns">
-        <a class="gp-btn" id="hero-cta" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+        <a class="gp-btn" id="hero-cta" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener"  onclick="trackDownload()">
           <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
         </a>
         <div class="trust-micro">
@@ -716,9 +724,14 @@ footer a:hover{color:var(--text);}
     <div class="eyebrow">Get started today</div>
     <h2>Start Going Viral<br>Right Now 🚀</h2>
     <p class="section-sub" style="margin:0 auto 28px;">Join 10,000+ creators already using AI Caption Maker to grow their audience every day.</p>
-    <a class="gp-btn" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
-      <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
-    </a>
+  <a class="gp-btn" 
+   href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" 
+   rel="noopener"
+   onclick="trackDownload()">
+
+  <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" 
+       alt="Get it on Google Play">
+</a>
     <p style="font-size:12px;color:var(--muted);margin-top:14px;">100% Free · No credit card · Android</p>
   </div>
 </div>
@@ -730,14 +743,15 @@ footer a:hover{color:var(--text);}
     <div style="display:flex;gap:18px;">
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Use</a>
-      <a href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">Download App</a>
+      <a href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener"  onclick="trackDownload()">Download App</a>
+     
     </div>
   </footer>
 </div>
 
 <!-- STICKY BOTTOM CTA (mobile only) -->
 <div class="sticky" id="sticky">
-  <a class="gp-btn" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener">
+  <a class="gp-btn" href="https://play.google.com/store/apps/details?id=com.app.ai.caption.maker" rel="noopener"  onclick="trackDownload()">
     <img src="https://i.ibb.co/23nj1DLS/Google-Play-Store-badge-FR-svg.png" alt="Get it on Google Play">
   </a>
 </div>
@@ -774,6 +788,13 @@ const io = new IntersectionObserver((entries) => {
 }, {threshold: 0.08});
 cards.forEach(c => { c.style.opacity = '0'; io.observe(c); });
 </script>
-
+<script>
+function trackDownload() {
+  gtag('event', 'download_click', {
+    'event_category': 'engagement',
+    'event_label': 'google_play_button'
+  });
+}
+</script>
 </body>
 </html>
